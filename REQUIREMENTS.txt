@@ -1,0 +1,4 @@
+asgi-redis==1.0.0
+channels==0.17.3
+Django==1.10.3
+django-webpack-loader==0.4.1
