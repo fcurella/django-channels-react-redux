@@ -6,6 +6,26 @@ import json
 User = get_user_model()
 
 
+def send_action(group_name, action):
+    """
+    Convenience method to dispatch redux actions from channels.
+
+    Usage::
+
+        send_action("group_name", {
+            "type": "MY_ACTION",
+            "payload": {
+                "id": 1,
+                "name": "Lorem",
+            }
+        })
+    """
+    data = {
+        'text': json.dumps(action),
+    }
+    Group(group_name).send(data)
+
+    
 class ActionEngine(object):
     """A simple dispatcher that consumes a Redux-style action and routes
     it to a method on the subclass, using the `action.type`.
