@@ -46,7 +46,6 @@ def make_registrar():
 action = make_registrar()
 
 
->>>>>>> add `action` decorator
 class ActionEngine(object):
     """A simple dispatcher that consumes a Redux-style action and routes
     it to a method on the subclass, using the `action.type`.
