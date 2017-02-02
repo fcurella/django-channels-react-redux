@@ -1,9 +1,9 @@
 from collections import defaultdict
-
-from channels import Group
-from django.contrib.auth import authenticate, login, get_user_model
-
 import json
+
+from django.contrib.auth import authenticate, login, get_user_model
+from channels import Group
+
 
 User = get_user_model()
 
