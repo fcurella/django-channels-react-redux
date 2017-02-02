@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from channels import Group
 from django.contrib.auth import authenticate, login, get_user_model
 
@@ -25,22 +27,50 @@ def send_action(group_name, action):
     }
     Group(group_name).send(data)
 
-    
+
+_registry = defaultdict(list)
+
+
+def make_registrar():
+
+    def registrar(action_type):
+        def wrap(func):
+            _registry[action_type].append(func)
+            return func
+        return wrap
+
+    registrar.all = _registry
+    return registrar
+
+
+action = make_registrar()
+
+
+>>>>>>> add `action` decorator
 class ActionEngine(object):
     """A simple dispatcher that consumes a Redux-style action and routes
     it to a method on the subclass, using the `action.type`.
-    E.g. If an action comes in {type: 'login', user: 'bob'}, it will
-    call the `LOGIN` method, passing in the the asgi message and parsed
-    action.
-    This is a very simplistic router and likely not ideal for longer-term
-    since it ties the React client-side actions, to the network procedure
-    calling protocol, to the server-side method definition. It also
-    effectively exposes the Python methods to the client which could
-    be a security risk, though we do mitigate by uppercasing the requested
-    method which so not expose protected methods.
+
+    To associate a method to one or more redux actions, use the `@action`
+    decorator::
+
+        from django_react.engine import ActionEngine, action
+
+
+        class Engine(ActionEngine):
+
+            @action('INCREMENT_COUNTER')
+            def incr_counter(self, message):
+                self.send_to_group('broadcast', {
+                    'type': 'INCREMENTED_COUNTER',
+                    'incrementBy': message['incrementBy'],
+                })
+
+
     Callers should use the `ActionEngine.dispath(message)`. Subclasses
     can use the `add` and `send` methods.
     """
+
     @classmethod
     def dispatch(cls, message):
         engine = cls(message)
@@ -51,11 +81,13 @@ class ActionEngine(object):
         # Simple protection to only expose upper case methods
         # to client-side directives
         action_type = action['type'].upper()
-        if hasattr(engine, action_type):
-            method = getattr(engine, action_type)
-            return method(action)
-        else:
+
+        methods = _registry[action_type]
+
+        if not methods:
             raise NotImplementedError('{} not implemented'.format(action_type))
+
+        [method(engine, action) for method in methods]
 
     def __init__(self, message):
         self.message = message

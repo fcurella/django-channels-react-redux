@@ -1,4 +1,4 @@
-from django_react.engine import ActionEngine
+from django_react.engine import ActionEngine, action
 
 
 class Engine(ActionEngine):
@@ -13,5 +13,6 @@ class Engine(ActionEngine):
                 }
             })
 
-    def INCREMENT_COUNTER(self, message):
+    @action('INCREMENT_COUNTER')
+    def incr_counter(self, message):
         self.send_to_group('broadcast', {'type': 'INCREMENTED_COUNTER', 'incrementBy': message['incrementBy']})
