@@ -3,6 +3,8 @@ Django Channels React Example
 
 Minimalistic example app that uses Django Channels to dispatch and responds to React/Redux actions.
 
+For a reusable implementation, see `_fcurella/django_redux <https://github.com/fcurella/django_redux>`_.
+
 Quickstart
 ----------
 
